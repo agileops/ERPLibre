@@ -8,7 +8,7 @@
 #-------------------------------------------------------------------------------
 ################################################################################
 
-. ./env_var.sh
+. ../env_var.sh
 
 ./odoo_install_debian_dependancy.sh
 
@@ -35,7 +35,7 @@ echo -e "\n==== Clone this installation  ===="
 REMOTE_URL_GIT=`git remote get-url origin`
 BRANCH_GIT=`git rev-parse --abbrev-ref HEAD`
 sudo su ${OE_USER} -c "git clone --branch ${BRANCH_GIT} ${REMOTE_URL_GIT} ${OE_HOME_ODOO}"
-sudo cp ./env_var.sh ${OE_HOME_ODOO}
+sudo cp ../env_var.sh ${OE_HOME_ODOO}
 sudo chown -R ${OE_USER}:${OE_USER} ${OE_HOME_ODOO}/env_var.sh
 
 LAST_PWD=$PWD

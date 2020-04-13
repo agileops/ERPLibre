@@ -4,7 +4,7 @@
 # Author: Alexandre Ferreira Benevides
 ################################################################################
 
-. ./env_var.sh
+. ../env_var.sh
 
 if [[ "${OSTYPE}" == "linux-gnu" ]]; then
     OS=$(lsb_release -si)
