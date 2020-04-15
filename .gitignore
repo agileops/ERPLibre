@@ -8,3 +8,4 @@ venv
 config.conf
 *.DS_Store
 *.pyc
+/script/fork-github-repo
