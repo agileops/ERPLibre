@@ -133,7 +133,42 @@ organization:
 
 
 def get_addons_repo_origin():
-    print(addons_repo_origin)
+    """
+
+    :return: list of {
+                    "url": ...,
+                    "path": ...,
+                    "name": ...,
+                }
+    """
+    dct_config = {
+        "": addons_repo_origin.config,
+        "addons": addons_repo_origin.config_addons
+    }
+    result = []
+    for c_path, dct_config in dct_config.items():
+        for server, dct_organization in dct_config.items():
+            for organization, lst_repo in dct_organization.items():
+                for repo in lst_repo:
+                    url = f"https://{server}/{organization}/{repo}.git"
+                    url_https = f"https://{server}/{organization}/{repo}.git"
+                    url_git = f"git@{server}:{organization}/{repo}.git"
+                    if not c_path:
+                        path = f"{repo}"
+                    else:
+                        path = f"{c_path}/{organization}_{repo}"
+
+                    name = path
+                    result.append(
+                        {
+                            "url": url,
+                            "url_https": url_https,
+                            "url_git": url_git,
+                            "path": path,
+                            "name": name,
+                        }
+                    )
+    return result
 
 
 def main():
