@@ -102,9 +102,11 @@ def get_list_fork_repo(upstream_url, github_token):
     response = gh.repos["odoo"][parsed_url.repo].forks.get(sort="newest")
     print(response)
 
+
 def fork_and_clone_repo(
         upstream_url, github_token, repo_dir_root, branch_name=None,
-        upstream_name='upstream', organization_name=None, fork_only=False):
+        upstream_name='upstream', organization_name=None, fork_only=False,
+        repo_root=None):
     """Fork a GitHub repo, clone that repo to a local directory,
     add the upstream remote, create an optional feature branch and checkout
     that branch
@@ -117,6 +119,7 @@ def fork_and_clone_repo(
     :param str upstream_name: The name to use for the remote upstream
     :param str organization_name: The name the organization that replace actual user
     :param bool fork_only: Stop after forking and don't clone
+    :param obj repo_root: Repo parent, if not None, use submodule with it
     :return: github3.Head object representing the new feature branch
     """
     # Scope needed is `public_repo` to fork and clone public repos
@@ -155,15 +158,38 @@ def fork_and_clone_repo(
 
     # Clone the repo
     repo_dir = os.path.expanduser(os.path.join(repo_dir_root, parsed_url.repo))
-    if os.path.isdir(repo_dir):
-        print("Directory %s already exists, assuming it's a clone" % repo_dir)
-        cloned_repo = Repo(repo_dir)
+    if repo_root:
+        # TODO validate not already submodule
+        # forked_repo['ssh_url']
+        http_url = f"https://{(forked_repo['ssh_url'][4:]).replace(':', '/')}"
+        if branch_name:
+            submodule_repo = retry(
+                wait_exponential_multiplier=1000,
+                stop_max_delay=15000
+            )(repo_root.create_submodule)(repo_dir_root, repo_dir_root,
+                                         url=http_url,
+                                         branch=branch_name)
+        else:
+            submodule_repo = retry(
+                wait_exponential_multiplier=1000,
+                stop_max_delay=15000
+            )(repo_root.create_submodule)(repo_dir_root, repo_dir_root,
+                                         url=http_url)
+
+        cloned_repo = Repo(repo_dir_root)
+        print("Cloned %s to %s" % (http_url, repo_dir))
+        # sm = cloned_repo.create_submodule('mysubrepo', 'path/to/subrepo',
+        #                                   url=bare_repo.git_dir, branch='master')
     else:
-        cloned_repo = retry(
-            wait_exponential_multiplier=1000,
-            stop_max_delay=15000
-        )(Repo.clone_from)(forked_repo['ssh_url'], repo_dir)
-        print("Cloned %s to %s" % (forked_repo['ssh_url'], repo_dir))
+        if os.path.isdir(repo_dir):
+            print("Directory %s already exists, assuming it's a clone" % repo_dir)
+            cloned_repo = Repo(repo_dir)
+        else:
+            cloned_repo = retry(
+                wait_exponential_multiplier=1000,
+                stop_max_delay=15000
+            )(Repo.clone_from)(forked_repo['ssh_url'], repo_dir)
+            print("Cloned %s to %s" % (forked_repo['ssh_url'], repo_dir))
 
     # Create the remote upstream
     try:

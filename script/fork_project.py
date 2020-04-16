@@ -179,10 +179,12 @@ def main():
 
     if not github_token:
         raise ValueError("Missing github_token")
+    repo_root = Repo(".")
 
     lst_repo = get_addons_repo_origin()
     for repo in lst_repo:
         # url = "https://github.com/octocat/Spoon-Knife"
+        # TODO remove repo.get("name"), not used
         url = repo.get("url")
         # repo_dir_root = "/tmp"
         repo_dir_root = repo.get("path")
@@ -204,7 +206,8 @@ def main():
             branch_name=branch_name,
             upstream_name=upstream_name,
             organization_name=organization_name,
-            fork_only=True,
+            # fork_only=True,
+            repo_root=repo_root,
         )
 
 
