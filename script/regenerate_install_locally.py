@@ -5,8 +5,6 @@ import argparse
 import logging
 from git import Repo
 
-from retrying import retry  # pip install retrying
-
 from script import fork_github_repo
 from script import addons_repo_origin
 
@@ -37,12 +35,8 @@ def get_all_repo():
             elif line[:7] == "\turl = ":
                 url = line[7:-1]
                 # TODO support when git/ssh
-                url_https = url
-                url_git = url
                 data = {
                     "url": url,
-                    "url_https": url_https,
-                    "url_git": url_git,
                     "path": path,
                     "name": name,
                 }
@@ -150,7 +144,7 @@ def get_addons_repo_origin():
                 }
     """
     dct_config = {
-        "": addons_repo_origin.config,
+        # "": addons_repo_origin.config,
         "addons": addons_repo_origin.config_addons
     }
     result = []
@@ -180,85 +174,40 @@ def get_addons_repo_origin():
 
 
 def main():
-    # repo = Repo(root_path)
-    # lst_repo = get_all_repo()
     config = get_config()
 
-    repo_root = Repo(".")
-
     lst_repo = get_addons_repo_origin()
-    i = 0
-    total = len(lst_repo)
+    lst_result = []
     for repo in lst_repo:
-        i += 1
-        print(f"Nb element {i}/{total}")
-        # url = "https://github.com/octocat/Spoon-Knife"
-        # TODO remove repo.get("name"), not used
-        url = repo.get("url")
-        # repo_dir_root = "/tmp"
-        repo_dir_root = repo.get("path")
-        upstream_name = "MathBenTech"
-        organization_name = "ERPLibre"
+        # Exception, ignore addons/OCA_web
+        if "addons/OCA_web" == repo.get("path"):
+            continue
+        str_repo = f'    printf "${{OE_HOME}}/{repo.get("path")}," >> ' \
+                   f'${{OE_CONFIG_FILE}}\n'
+        lst_result.append(str_repo)
+    with open("script/odoo_install_locally.sh") as file:
+        all_lines = file.readlines()
+    # search place to add/replace lines
+    index = 0
+    find_index = False
+    index_find = 0
+    for line in all_lines:
+        if not find_index and "if [ $MINIMAL_ADDONS = \"False\" ]; then\n" == line:
+            index_find = index + 1
+            for insert_line in lst_result:
+                all_lines.insert(index_find, insert_line)
+                index_find += 1
+            find_index = True
+            # Delete all next line until meet fi
+        if find_index and "fi\n" == line:
+            # slice it
+            all_lines = all_lines[0:index_find] + all_lines[index:]
+            break
+        index += 1
 
-        # webbrowser.open_new_tab(url)
-        # continue
-
-        # if url in url_switch.keys():
-        #     url = url_switch.get(url)
-        # fork_github_repo.get_list_fork_repo(url, github_token)
-
-        _logger.info(
-            f"Fork {url} on dir {repo_dir_root} for organization {organization_name}")
-
-        # fork_github_repo.fork_and_clone_repo(
-        #     url,
-        #     repo_dir_root,
-        #     branch_name=branch_name,
-        #     upstream_name=upstream_name,
-        #     organization_name=organization_name,
-        #     # fork_only=True,
-        #     repo_root=repo_root,
-        # )
-
-        # Create the remote upstream
-        split_url = url.split("/")
-        split_url[-2] = upstream_name
-        upstream_url = "/".join(split_url)
-
-        cloned_repo = Repo(repo_dir_root)
-        # Checkout branch 12.0
-        # try:
-        #     cloned_repo.git.checkout(cloned_repo.head.commit.hexsha)
-        #     cloned_repo.delete_head("12.0")
-        #     cloned_repo.git.checkout("MathBenTech/12.0", b="12.0", force=True)
-        # except:
-        #     # cloned_repo.git.checkout("MathBenTech/12.0", b="12.0", force=True)
-        #     print(f"Cannot change branch for {repo_dir_root}")
-        #     # try:
-        #     #     cloned_repo.git.checkout("12.0")
-        #     # except:
-        #     #     print(f"ERROR, missing branch 12.0 for {repo_dir_root}")
-
-        try:
-            upstream_remote = cloned_repo.remote(upstream_name)
-            print('Remote "%s" already exists in %s' %
-                  (upstream_name, repo_dir_root))
-        except ValueError:
-            upstream_remote = retry(
-                wait_exponential_multiplier=1000,
-                stop_max_delay=15000
-            )(cloned_repo.create_remote)(upstream_name, upstream_url)
-            print('Remote "%s" created for %s' % (upstream_name, upstream_url))
-
-        try:
-            # Fetch the remote upstream
-            retry(wait_exponential_multiplier=1000, stop_max_delay=15000)(
-                upstream_remote.fetch)()
-            print('Remote "%s" fetched' % upstream_name)
-        except Exception:
-            print(f"ERROR git {repo_dir_root} remote {upstream_name} not exist.")
-            upstream_remote.remove(cloned_repo, upstream_name)
-
+    # create file
+    with open("script/odoo_install_locally.sh", mode="w") as file:
+        file.writelines(all_lines)
 
 if __name__ == '__main__':
     main()
