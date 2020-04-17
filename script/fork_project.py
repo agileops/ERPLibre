@@ -2,11 +2,13 @@
 import os
 import webbrowser
 import argparse
+import logging
 from git import Repo
 
 from script import fork_github_repo
 from script import addons_repo_origin
 
+_logger = logging.getLogger(__name__)
 CST_GITHUB_TOKEN = "GITHUB_TOKEN"
 
 
@@ -198,6 +200,9 @@ def main():
         # if url in url_switch.keys():
         #     url = url_switch.get(url)
         # fork_github_repo.get_list_fork_repo(url, github_token)
+
+        _logger.info(
+            f"Fork {url} on dir {repo_dir_root} for organization {organization_name}")
 
         fork_github_repo.fork_and_clone_repo(
             url,

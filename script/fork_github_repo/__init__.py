@@ -1,6 +1,7 @@
 from __future__ import print_function
 import argparse
 import os.path
+import shutil
 from agithub.GitHub import GitHub  # pip install agithub
 from git import Repo  # pip install gitpython
 from giturlparse import parse  # pip install giturlparse
@@ -162,19 +163,55 @@ def fork_and_clone_repo(
         # TODO validate not already submodule
         # forked_repo['ssh_url']
         http_url = f"https://{(forked_repo['ssh_url'][4:]).replace(':', '/')}"
-        if branch_name:
-            submodule_repo = retry(
-                wait_exponential_multiplier=1000,
-                stop_max_delay=15000
-            )(repo_root.create_submodule)(repo_dir_root, repo_dir_root,
-                                         url=http_url,
-                                         branch=branch_name)
-        else:
-            submodule_repo = retry(
-                wait_exponential_multiplier=1000,
-                stop_max_delay=15000
-            )(repo_root.create_submodule)(repo_dir_root, repo_dir_root,
-                                         url=http_url)
+        try:
+            if branch_name:
+                submodule_repo = retry(
+                    wait_exponential_multiplier=1000,
+                    stop_max_delay=15000
+                )(repo_root.create_submodule)(repo_dir_root, repo_dir_root,
+                                              url=http_url,
+                                              branch=branch_name)
+            else:
+                submodule_repo = retry(
+                    wait_exponential_multiplier=1000,
+                    stop_max_delay=15000
+                )(repo_root.create_submodule)(repo_dir_root, repo_dir_root,
+                                              url=http_url)
+        except KeyError as e:
+            if os.path.isdir(repo_dir_root):
+                print(f"Warning, submodule {repo_dir_root} already exist, "
+                      f"you need to add it in stage.")
+            else:
+                print(f"\nERROR Cannot create submodule {repo_dir_root}."
+                      f"Maybe you need to delete .git/modules/{repo_dir_root}\n")
+                return
+                # # Delete appropriate submodule and recreate_submodule
+                # shutil.rmtree(f".git/modules/{repo_dir_root}", ignore_errors=True)
+                # if branch_name:
+                #     submodule_repo = retry(
+                #         wait_exponential_multiplier=1000,
+                #         stop_max_delay=15000
+                #     )(repo_root.create_submodule)(repo_dir_root, repo_dir_root,
+                #                                   url=http_url,
+                #                                   branch=branch_name)
+                # else:
+                #     submodule_repo = retry(
+                #         wait_exponential_multiplier=1000,
+                #         stop_max_delay=15000
+                #     )(repo_root.create_submodule)(repo_dir_root, repo_dir_root,
+                #                                   url=http_url)
+                # Update submodule
+                # print(f"Try to fix submodule {repo_dir_root} with update them all.")
+                # retry(
+                #     wait_exponential_multiplier=1000,
+                #     stop_max_delay=15000
+                # )(repo_root.submodule_update)(recursive=False)
+                # if os.path.isdir(repo_dir_root):
+                #     print(f"Submodule {repo_dir_root} fixed.")
+                # else:
+                #     # TODO remove submodule
+                #     print(f"Error, submodule {repo_dir_root} is configured, but not "
+                #           f"existing. Do git submodule update")
 
         cloned_repo = Repo(repo_dir_root)
         print("Cloned %s to %s" % (http_url, repo_dir))
