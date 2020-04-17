@@ -224,12 +224,16 @@ def main():
         cloned_repo = Repo(repo_dir_root)
         # Checkout branch 12.0
         # try:
-        #     cloned_repo.git.checkout("origin/12.0", b="12.0")
+        #     cloned_repo.git.checkout(cloned_repo.head.commit.hexsha)
+        #     cloned_repo.delete_head("12.0")
+        #     cloned_repo.git.checkout("MathBenTech/12.0", b="12.0", force=True)
         # except:
-        #     try:
-        #         cloned_repo.git.checkout("12.0")
-        #     except:
-        #         print(f"ERROR, missing branch 12.0 for {repo_dir_root}")
+        #     # cloned_repo.git.checkout("MathBenTech/12.0", b="12.0", force=True)
+        #     print(f"Cannot change branch for {repo_dir_root}")
+        #     # try:
+        #     #     cloned_repo.git.checkout("12.0")
+        #     # except:
+        #     #     print(f"ERROR, missing branch 12.0 for {repo_dir_root}")
 
         try:
             upstream_remote = cloned_repo.remote(upstream_name)

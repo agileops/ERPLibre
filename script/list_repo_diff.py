@@ -184,7 +184,6 @@ def main():
     # repo_root = Repo(".")
     lst_result = []
 
-    # lst_repo = get_addons_repo_origin()
     for repo in lst_repo:
         # url = "https://github.com/octocat/Spoon-Knife"
         # TODO remove repo.get("name"), not used
@@ -200,8 +199,8 @@ def main():
         else:
             print(f"Error, missing branch {branch_search} in {remote_path}")
             continue
-        if repo_root.head.commit.tree != repo_branch_search_sha:
-            lst_result.append((remote_path, repo_root.head.commit.tree))
+        lst_result.append((remote_path, repo_root.head.commit.hexsha,
+                           repo_root.head.commit.hexsha != repo_branch_search_sha))
 
         # print(repo_root)
 
@@ -230,7 +229,19 @@ def main():
         # except Exception:
         #     print(f"ERROR git {repo_dir_root} remote {upstream_name} not exist.")
         #     upstream_remote.remove(upstream_remote, upstream_name)
-    print(lst_result)
+
+    i = 0
+    i_len = len(lst_result)
+    for path, hash, diff in lst_result:
+        i += 1
+        if diff:
+            print(f"{i:02d}/{i_len} {diff} {path}\t{hash}")
+
+    # lst_repo = get_addons_repo_origin()
+    # for repo in lst_repo:
+    #     repo_dir_root = repo.get("path")
+    #     repo_root = Repo(remote_path)
+    #     repo_root.git.checkout()
 
 
 if __name__ == '__main__':
