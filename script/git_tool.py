@@ -6,10 +6,12 @@ import webbrowser
 
 from git import Repo
 
+CST_FILE_SOURCE_REPO_ADDONS_ODOO = "source_repo_addons_odoo.csv"
 CST_GITHUB_TOKEN = "GITHUB_TOKEN"
 
 
 class GitTool:
+
     @staticmethod
     def get_repo_info_submodule(repo_path="./", add_root=False, upstream="origin"):
         """
@@ -80,7 +82,7 @@ class GitTool:
         return lst_repo
 
     @staticmethod
-    def get_repo_info_from_data_structure():
+    def get_repo_info_from_data_structure(ignore_odoo=False):
         """
         Deprecated, read file addons_repo_origin to obtains repo list.
         :return:
@@ -93,9 +95,10 @@ class GitTool:
         }]
         """
         dct_config = {
-            "": addons_repo_origin.config,
             "addons": addons_repo_origin.config_addons
         }
+        if not ignore_odoo:
+            dct_config[""] = addons_repo_origin.config
         result = []
         for c_path, dct_config in dct_config.items():
             for server, dct_organization in dct_config.items():
@@ -153,8 +156,20 @@ class GitTool:
         if url:
             webbrowser.open_new_tab(url)
 
-    def regenerate_odoo_install_locally(self):
-        lst_repo = self.get_repo_info_from_data_structure()
+    def generate_repo_source_from_building(self, path_repo="./"):
+        """
+        Generate csv file with information about all source addons repo of Odoo
+        :param path_repo:
+        :return:
+        """
+        file_name = f"{path_repo}{CST_FILE_SOURCE_REPO_ADDONS_ODOO}"
+        lst_repo_info = self.get_repo_info_from_data_structure(ignore_odoo=True)
+        lst_result = [f"{a.get('url_https')}\n" for a in lst_repo_info]
+        with open(file_name, "w") as file:
+            file.writelines(lst_result)
+
+    def generate_odoo_install_locally(self):
+        lst_repo = self.get_repo_info_from_data_structure(ignore_odoo=True)
         lst_result = []
         for repo in lst_repo:
             # Exception, ignore addons/OCA_web and root
@@ -187,3 +202,6 @@ class GitTool:
         # create file
         with open("script/odoo_install_locally.sh", mode="w") as file:
             file.writelines(all_lines)
+
+    def get_source_repo_addons(self):
+        pass

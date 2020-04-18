@@ -9,7 +9,6 @@ from retrying import retry  # pip install retrying
 
 from script.git_tool import GitTool
 from script import fork_github_repo
-from script import addons_repo_origin
 
 _logger = logging.getLogger(__name__)
 CST_GITHUB_TOKEN = "GITHUB_TOKEN"
