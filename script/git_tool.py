@@ -28,27 +28,19 @@ class GitTool:
             "name": name of the submodule
         }]
         """
-        filename = f"{repo_path}.gitmodules"
+        filename = f"{repo_path}/.gitmodules"
         lst_repo = []
         with open(filename) as file:
             txt = file.readlines()
-            name = ""
-            path = ""
-            for line in txt:
-                if line[:12] == "[submodule \"":
-                    name = line[12:-3]
-                    continue
-                elif line[:7] == "\turl = ":
-                    url = line[7:-1]
-                    if "https" in url:
-                        url_git = f"git@{url[8:].replace('/', ':', 1)}"
-                        url_https = url
-                    else:
-                        url_https = f"https://{(url[4:]).replace(':', '/')}"
-                        url_git = url
-                    continue
-                elif line[:8] == "\tpath = ":
-                    path = line[8:-1]
+
+        name = ""
+        url = ""
+        no_line = 0
+        first_execution = True
+        for line in txt:
+            no_line += 1
+            if line[:12] == "[submodule \"":
+                if not first_execution:
                     data = {
                         "url": url,
                         "url_https": url_https,
@@ -57,10 +49,36 @@ class GitTool:
                         "name": name,
                     }
                     lst_repo.append(data)
+                name = line[12:-3]
+                first_execution = False
+                continue
+            elif line[:7] == "\turl = ":
+                url = line[7:-1]
+                if "https" in url:
+                    url_git = f"git@{url[8:].replace('/', ':', 1)}"
+                    url_https = url
                 else:
-                    if not line.strip():
-                        continue
-                    raise Exception(".gitmodules seems not correctly formatted.")
+                    url_https = f"https://{(url[4:]).replace(':', '/')}"
+                    url_git = url
+                continue
+            elif line[:8] == "\tpath = ":
+                path = line[8:-1]
+            else:
+                if not line.strip():
+                    continue
+                raise Exception(".gitmodules seems not correctly formatted.")
+
+        if not first_execution:
+            # Get last item
+            data = {
+                "url": url,
+                "url_https": url_https,
+                "url_git": url_git,
+                "path": path,
+                "name": name,
+            }
+            lst_repo.append(data)
+
         if add_root:
             repo_root = Repo(repo_path)
             url = repo_root.git.remote("get-url", "origin")
@@ -204,6 +222,18 @@ class GitTool:
             file.writelines(all_lines)
 
     def get_source_repo_addons(self, repo_path="./"):
+        """
+        Read file CST_FILE_SOURCE_REPO_ADDONS_ODOO and return structure of data
+        :param repo_path: path to find file CST_FILE_SOURCE_REPO_ADDONS_ODOO
+        :return:
+        [{
+            "url": original_url,
+            "url_https": url in https,
+            "url_git": url in git,
+            "path": path of the submodule
+            "name": name of the submodule
+        }]
+        """
         file_name = f"{repo_path}{CST_FILE_SOURCE_REPO_ADDONS_ODOO}"
         lst_result = []
         with open(file_name) as file:
@@ -214,10 +244,8 @@ class GitTool:
                 url_git = f"git@{url[8:].replace('/', ':', 1)}"
                 url_https = url
             else:
-                # url_https = f"https://{(url[4:]).replace(':', '/')}"
-                # url_git = url
-                print("\nWARNING: url git not supported!\n")
-                continue
+                url_https = f"https://{(url[4:]).replace(':', '/')}"
+                url_git = url
 
             url_split = url_https.split("/")
             organization = url_split[3]
@@ -234,3 +262,42 @@ class GitTool:
                 }
             )
         return lst_result
+
+    def get_matching_repo(self, actual_repo="./", repo_compare_to="./",
+                          lst_match_path=[], force_normalize_compare=False):
+        """
+        Compare repo with .gitmodules files
+        :param actual_repo:
+        :param repo_compare_to:
+        :param lst_match_path:
+        :param force_normalize_compare: update name of compare repo
+        :return:
+        """
+        lst_repo_info_actual = self.get_repo_info_submodule(actual_repo)
+        dct_repo_info_actual = {a.get("name"): a for a in lst_repo_info_actual}
+        set_actual = set(dct_repo_info_actual.keys())
+        set_actual_repo = set(
+            [a[a.find("_") + 1:] for a in dct_repo_info_actual.keys()])
+
+        lst_repo_info_compare = self.get_repo_info_submodule(repo_compare_to)
+        if force_normalize_compare:
+            for repo_info in lst_repo_info_compare:
+                url_https = repo_info.get("url_https")
+                url_split = url_https.split("/")
+                organization = url_split[3]
+                repo_name = url_split[4][:-4]
+                name = f"addons/{organization}_{repo_name}"
+                name = f"{repo_name}"
+                repo_info["name"] = name
+
+        dct_repo_info_compare = {a.get("name"): a for a in lst_repo_info_compare}
+        set_compare = set(dct_repo_info_compare.keys())
+
+        # TODO finish the match
+        lst_same_name = set_actual.intersection(set_compare)
+        lst_missing_name = set_compare.difference(set_actual)
+
+        lst_same_name_normalize = set_actual_repo.intersection(set_compare)
+        lst_missing_name_normalize = set_compare.difference(set_actual_repo)
+        lst_over_name_normalize = set_actual_repo.difference(set_compare)
+        print(lst_same_name)
