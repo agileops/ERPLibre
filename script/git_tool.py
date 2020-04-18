@@ -156,13 +156,13 @@ class GitTool:
         if url:
             webbrowser.open_new_tab(url)
 
-    def generate_repo_source_from_building(self, path_repo="./"):
+    def generate_repo_source_from_building(self, repo_path="./"):
         """
         Generate csv file with information about all source addons repo of Odoo
-        :param path_repo:
+        :param repo_path: Path to build repo source
         :return:
         """
-        file_name = f"{path_repo}{CST_FILE_SOURCE_REPO_ADDONS_ODOO}"
+        file_name = f"{repo_path}{CST_FILE_SOURCE_REPO_ADDONS_ODOO}"
         lst_repo_info = self.get_repo_info_from_data_structure(ignore_odoo=True)
         lst_result = [f"{a.get('url_https')}\n" for a in lst_repo_info]
         with open(file_name, "w") as file:
@@ -203,5 +203,34 @@ class GitTool:
         with open("script/odoo_install_locally.sh", mode="w") as file:
             file.writelines(all_lines)
 
-    def get_source_repo_addons(self):
-        pass
+    def get_source_repo_addons(self, repo_path="./"):
+        file_name = f"{repo_path}{CST_FILE_SOURCE_REPO_ADDONS_ODOO}"
+        lst_result = []
+        with open(file_name) as file:
+            all_lines = file.readlines()
+        for line in all_lines:
+            url = line[:-1]
+            if "https" in url:
+                url_git = f"git@{url[8:].replace('/', ':', 1)}"
+                url_https = url
+            else:
+                # url_https = f"https://{(url[4:]).replace(':', '/')}"
+                # url_git = url
+                print("\nWARNING: url git not supported!\n")
+                continue
+
+            url_split = url_https.split("/")
+            organization = url_split[3]
+            repo_name = url_split[4][:-4]
+            path = f"addons/{organization}_{repo_name}"
+            name = path
+            lst_result.append(
+                {
+                    "url": url,
+                    "url_https": url_https,
+                    "url_git": url_git,
+                    "path": path,
+                    "name": name,
+                }
+            )
+        return lst_result
