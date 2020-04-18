@@ -340,6 +340,7 @@ class GitTool:
             if commit_original != commit_compare:
                 print(f"DIFF - {original.get('name')}")
                 lst_diff.append((original, compare_to))
+                repo_original.git.checkout(commit_compare)
             else:
                 print(f"SAME - {original.get('name')}")
                 lst_same.append((original, compare_to))
