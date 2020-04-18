@@ -2,6 +2,7 @@
 # © 2020 TechnoLibre (http://www.technolibre.ca)
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 from . import addons_repo_origin
+import webbrowser
 
 from git import Repo
 
@@ -145,3 +146,44 @@ class GitTool:
                     if len(lst_v) > 1:
                         dct_config[CST_GITHUB_TOKEN] = v.split("=")[1][1:-1]
         return dct_config
+
+    @staticmethod
+    def open_repo_web_browser(dct_repo):
+        url = dct_repo.get("url_https")
+        if url:
+            webbrowser.open_new_tab(url)
+
+    def regenerate_odoo_install_locally(self):
+        lst_repo = self.get_repo_info_from_data_structure()
+        lst_result = []
+        for repo in lst_repo:
+            # Exception, ignore addons/OCA_web and root
+            if "addons/OCA_web" == repo.get("path") or \
+                    "odoo" == repo.get("path"):
+                continue
+            str_repo = f'    printf "${{OE_HOME}}/{repo.get("path")}," >> ' \
+                       f'${{OE_CONFIG_FILE}}\n'
+            lst_result.append(str_repo)
+        with open("script/odoo_install_locally.sh") as file:
+            all_lines = file.readlines()
+        # search place to add/replace lines
+        index = 0
+        find_index = False
+        index_find = 0
+        for line in all_lines:
+            if not find_index and "if [ $MINIMAL_ADDONS = \"False\" ]; then\n" == line:
+                index_find = index + 1
+                for insert_line in lst_result:
+                    all_lines.insert(index_find, insert_line)
+                    index_find += 1
+                find_index = True
+                # Delete all next line until meet fi
+            if find_index and "fi\n" == line:
+                # slice it
+                all_lines = all_lines[0:index_find] + all_lines[index:]
+                break
+            index += 1
+
+        # create file
+        with open("script/odoo_install_locally.sh", mode="w") as file:
+            file.writelines(all_lines)
