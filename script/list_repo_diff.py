@@ -46,7 +46,11 @@ def main():
     # repo_root = Repo(".")
     lst_result = []
 
+    i = 0
+    total = len(lst_repo)
     for repo in lst_repo:
+        i += 1
+        print(f"Nb element {i}/{total}")
         repo_dir_root = repo.get("path")
         remote_path = f"{remote_repo}/{repo_dir_root}"
         repo_root = Repo(remote_path)

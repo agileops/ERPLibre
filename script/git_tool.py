@@ -97,6 +97,8 @@ class GitTool:
                 "name": "",
             }
             lst_repo.insert(0, data)
+        # Sort
+        lst_repo = sorted(lst_repo, key=lambda k: k.get("name"))
         return lst_repo
 
     @staticmethod
@@ -186,8 +188,9 @@ class GitTool:
         with open(file_name, "w") as file:
             file.writelines(lst_result)
 
-    def generate_odoo_install_locally(self):
-        lst_repo = self.get_repo_info_from_data_structure(ignore_odoo=True)
+    def generate_odoo_install_locally(self, repo_path="./"):
+        # lst_repo = self.get_repo_info_from_data_structure(ignore_odoo=True)
+        lst_repo = self.get_repo_info_submodule(repo_path=repo_path)
         lst_result = []
         for repo in lst_repo:
             # Exception, ignore addons/OCA_web and root
@@ -221,7 +224,8 @@ class GitTool:
         with open("script/odoo_install_locally.sh", mode="w") as file:
             file.writelines(all_lines)
 
-    def get_source_repo_addons(self, repo_path="./"):
+    @staticmethod
+    def get_source_repo_addons(repo_path="./"):
         """
         Read file CST_FILE_SOURCE_REPO_ADDONS_ODOO and return structure of data
         :param repo_path: path to find file CST_FILE_SOURCE_REPO_ADDONS_ODOO
@@ -249,7 +253,9 @@ class GitTool:
 
             url_split = url_https.split("/")
             organization = url_split[3]
-            repo_name = url_split[4][:-4]
+            repo_name = url_split[4]
+            if repo_name[-4:] == ".git":
+                repo_name = repo_name[:-4]
             path = f"addons/{organization}_{repo_name}"
             name = path
             lst_result.append(

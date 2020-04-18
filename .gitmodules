@@ -250,3 +250,6 @@
 [submodule "addons/MathBenTech_odoo-business-spending-management-quebec-canada"]
 	url = https://github.com/ERPLibre/odoo-business-spending-management-quebec-canada.git
 	path = addons/MathBenTech_odoo-business-spending-management-quebec-canada
+[submodule "addons/OCA_account-financial-tools"]
+	url = https://github.com/ERPLibre/account-financial-tools.git
+	path = addons/OCA_account-financial-tools

@@ -54,13 +54,6 @@ if [ $MINIMAL_ADDONS = "False" ]; then
     printf "${OE_HOME}/addons/MathBenTech_development," >> ${OE_CONFIG_FILE}
     printf "${OE_HOME}/addons/MathBenTech_odoo-business-spending-management-quebec-canada," >> ${OE_CONFIG_FILE}
     printf "${OE_HOME}/addons/MathBenTech_scrummer," >> ${OE_CONFIG_FILE}
-    printf "${OE_HOME}/addons/muk-it_muk_base," >> ${OE_CONFIG_FILE}
-    printf "${OE_HOME}/addons/muk-it_muk_dms," >> ${OE_CONFIG_FILE}
-    printf "${OE_HOME}/addons/muk-it_muk_docs," >> ${OE_CONFIG_FILE}
-    printf "${OE_HOME}/addons/muk-it_muk_misc," >> ${OE_CONFIG_FILE}
-    printf "${OE_HOME}/addons/muk-it_muk_quality," >> ${OE_CONFIG_FILE}
-    printf "${OE_HOME}/addons/muk-it_muk_web," >> ${OE_CONFIG_FILE}
-    printf "${OE_HOME}/addons/muk-it_muk_website," >> ${OE_CONFIG_FILE}
     printf "${OE_HOME}/addons/Numigi_odoo-base-addons," >> ${OE_CONFIG_FILE}
     printf "${OE_HOME}/addons/Numigi_odoo-entertainment-addons," >> ${OE_CONFIG_FILE}
     printf "${OE_HOME}/addons/Numigi_odoo-git-addons," >> ${OE_CONFIG_FILE}
@@ -78,9 +71,10 @@ if [ $MINIMAL_ADDONS = "False" ]; then
     printf "${OE_HOME}/addons/OCA_account-closing," >> ${OE_CONFIG_FILE}
     printf "${OE_HOME}/addons/OCA_account-consolidation," >> ${OE_CONFIG_FILE}
     printf "${OE_HOME}/addons/OCA_account-financial-reporting," >> ${OE_CONFIG_FILE}
+    printf "${OE_HOME}/addons/OCA_account-financial-tools," >> ${OE_CONFIG_FILE}
     printf "${OE_HOME}/addons/OCA_account-fiscal-rule," >> ${OE_CONFIG_FILE}
-    printf "${OE_HOME}/addons/OCA_account-invoicing," >> ${OE_CONFIG_FILE}
     printf "${OE_HOME}/addons/OCA_account-invoice-reporting," >> ${OE_CONFIG_FILE}
+    printf "${OE_HOME}/addons/OCA_account-invoicing," >> ${OE_CONFIG_FILE}
     printf "${OE_HOME}/addons/OCA_account-payment," >> ${OE_CONFIG_FILE}
     printf "${OE_HOME}/addons/OCA_account-reconcile," >> ${OE_CONFIG_FILE}
     printf "${OE_HOME}/addons/OCA_apps-store," >> ${OE_CONFIG_FILE}
@@ -130,9 +124,16 @@ if [ $MINIMAL_ADDONS = "False" ]; then
     printf "${OE_HOME}/addons/OCA_timesheet," >> ${OE_CONFIG_FILE}
     printf "${OE_HOME}/addons/OCA_website," >> ${OE_CONFIG_FILE}
     printf "${OE_HOME}/addons/OCA_wms," >> ${OE_CONFIG_FILE}
+    printf "${OE_HOME}/addons/Smile-SA_odoo_addons," >> ${OE_CONFIG_FILE}
+    printf "${OE_HOME}/addons/muk-it_muk_base," >> ${OE_CONFIG_FILE}
+    printf "${OE_HOME}/addons/muk-it_muk_dms," >> ${OE_CONFIG_FILE}
+    printf "${OE_HOME}/addons/muk-it_muk_docs," >> ${OE_CONFIG_FILE}
+    printf "${OE_HOME}/addons/muk-it_muk_misc," >> ${OE_CONFIG_FILE}
+    printf "${OE_HOME}/addons/muk-it_muk_quality," >> ${OE_CONFIG_FILE}
+    printf "${OE_HOME}/addons/muk-it_muk_web," >> ${OE_CONFIG_FILE}
+    printf "${OE_HOME}/addons/muk-it_muk_website," >> ${OE_CONFIG_FILE}
     printf "${OE_HOME}/addons/odooaktiv_QuotationRevision," >> ${OE_CONFIG_FILE}
     printf "${OE_HOME}/addons/openeducat_openeducat_erp," >> ${OE_CONFIG_FILE}
-    printf "${OE_HOME}/addons/Smile-SA_odoo_addons," >> ${OE_CONFIG_FILE}
 fi
 printf "\n" >> ${OE_CONFIG_FILE}
 

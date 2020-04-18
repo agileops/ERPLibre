@@ -40,9 +40,13 @@ def main():
     if not github_token:
         raise ValueError("Missing github_token")
     repo_root = Repo(".")
-
-    lst_repo = GitTool.get_repo_info_from_data_structure()
+    GitTool().generate_odoo_install_locally()
+    lst_repo = GitTool.get_source_repo_addons()
+    i = 0
+    total = len(lst_repo)
     for repo in lst_repo:
+        i += 1
+        print(f"Nb element {i}/{total}")
         url = repo.get("url")
         repo_dir_root = repo.get("path")
         branch_name = None
@@ -62,6 +66,8 @@ def main():
             # fork_only=True,
             repo_root=repo_root,
         )
+
+    GitTool().generate_odoo_install_locally()
 
 
 if __name__ == '__main__':
