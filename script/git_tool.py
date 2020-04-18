@@ -46,6 +46,7 @@ class GitTool:
                         "url_https": url_https,
                         "url_git": url_git,
                         "path": path,
+                        "relative_path": f"{repo_path}/{path}",
                         "name": name,
                     }
                     lst_repo.append(data)
@@ -75,6 +76,7 @@ class GitTool:
                 "url_https": url_https,
                 "url_git": url_git,
                 "path": path,
+                "relative_path": f"{repo_path}/{path}",
                 "name": name,
             }
             lst_repo.append(data)
@@ -270,20 +272,23 @@ class GitTool:
         return lst_result
 
     def get_matching_repo(self, actual_repo="./", repo_compare_to="./",
-                          lst_match_path=[], force_normalize_compare=False):
+                          force_normalize_compare=False):
         """
         Compare repo with .gitmodules files
         :param actual_repo:
         :param repo_compare_to:
-        :param lst_match_path:
         :param force_normalize_compare: update name of compare repo
         :return:
         """
         lst_repo_info_actual = self.get_repo_info_submodule(actual_repo)
         dct_repo_info_actual = {a.get("name"): a for a in lst_repo_info_actual}
         set_actual = set(dct_repo_info_actual.keys())
-        set_actual_repo = set(
-            [a[a.find("_") + 1:] for a in dct_repo_info_actual.keys()])
+        # set_actual_repo = set(
+        #     [a[a.find("_") + 1:] for a in dct_repo_info_actual.keys()])
+
+        dct_repo_info_actual_adapted = {key[key.find("_") + 1:]: item for key, item in
+                                        dct_repo_info_actual.items()}
+        set_actual_repo = set(dct_repo_info_actual_adapted.keys())
 
         lst_repo_info_compare = self.get_repo_info_submodule(repo_compare_to)
         if force_normalize_compare:
@@ -292,7 +297,7 @@ class GitTool:
                 url_split = url_https.split("/")
                 organization = url_split[3]
                 repo_name = url_split[4][:-4]
-                name = f"addons/{organization}_{repo_name}"
+                # name = f"addons/{organization}_{repo_name}"
                 name = f"{repo_name}"
                 repo_info["name"] = name
 
@@ -300,10 +305,42 @@ class GitTool:
         set_compare = set(dct_repo_info_compare.keys())
 
         # TODO finish the match
-        lst_same_name = set_actual.intersection(set_compare)
-        lst_missing_name = set_compare.difference(set_actual)
+        # lst_same_name = set_actual.intersection(set_compare)
+        # lst_missing_name = set_compare.difference(set_actual)
 
         lst_same_name_normalize = set_actual_repo.intersection(set_compare)
         lst_missing_name_normalize = set_compare.difference(set_actual_repo)
         lst_over_name_normalize = set_actual_repo.difference(set_compare)
-        print(lst_same_name)
+        print(f"Has {len(lst_same_name_normalize)} sames, "
+              f"{len(lst_missing_name_normalize)} missing, "
+              f"{len(lst_over_name_normalize)} more.")
+
+        lst_match = []
+        for key in lst_same_name_normalize:
+            lst_match.append((
+                dct_repo_info_actual_adapted[key],
+                dct_repo_info_compare[key]
+            ))
+
+        return lst_match
+
+    @staticmethod
+    def sync_to(lst_compare_repo_info):
+        i = 0
+        total = len(lst_compare_repo_info)
+        lst_same = []
+        lst_diff = []
+        for original, compare_to in lst_compare_repo_info:
+            i += 1
+            print(f"Nb element {i}/{total}")
+            repo_original = Repo(original.get("relative_path"))
+            commit_original = repo_original.head.object.hexsha
+            repo_compare = Repo(compare_to.get("relative_path"))
+            commit_compare = repo_compare.head.object.hexsha
+            if commit_original != commit_compare:
+                print(f"DIFF - {original.get('name')}")
+                lst_diff.append((original, compare_to))
+            else:
+                print(f"SAME - {original.get('name')}")
+                lst_same.append((original, compare_to))
+        print(f"finish same {len(lst_same)}, diff {len(lst_diff)}")

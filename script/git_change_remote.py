@@ -45,6 +45,9 @@ def get_config():
     parser.add_argument("--generate_repo_source_from_building", action="store_true",
                         help=f"Only generate "
                              f"{git_tool.CST_FILE_SOURCE_REPO_ADDONS_ODOO}")
+    parser.add_argument("--sync_to", dest="sync_to",
+                        help=f"Only synchronize matching repo, use path compare to "
+                             f"repo.")
     args = parser.parse_args()
     return args
 
@@ -54,9 +57,6 @@ def main():
     # lst_repo = get_all_repo()
     config = get_config()
 
-    result = git_tool.GitTool().get_matching_repo(
-        repo_compare_to="/home/mathben/git/odoo", force_normalize_compare=True)
-
     if config.generate_only_install_locally:
         gt = git_tool.GitTool()
         gt.generate_odoo_install_locally()
@@ -65,6 +65,13 @@ def main():
     if config.generate_repo_source_from_building:
         gt = git_tool.GitTool()
         gt.generate_repo_source_from_building()
+        return
+
+    if config.sync_to:
+        gt = git_tool.GitTool()
+        result = gt.get_matching_repo(repo_compare_to=config.sync_to,
+                                      force_normalize_compare=True)
+        gt.sync_to(result)
         return
 
     # repo_root = Repo(".")
@@ -81,13 +88,6 @@ def main():
 
         if config.open_web_browser:
             git_tool.GitTool.open_repo_web_browser(repo.get("url_https"))
-
-        # if url in url_switch.keys():
-        #     url = url_switch.get(url)
-        # fork_github_repo.get_list_fork_repo(url, github_token)
-
-        _logger.info(
-            f"Fork {url} on dir {repo_dir_root} for organization {organization_name}")
 
         # Create the remote upstream
         split_url = url.split("/")
@@ -107,6 +107,9 @@ def main():
         #     #     cloned_repo.git.checkout("12.0")
         #     # except:
         #     #     print(f"ERROR, missing branch 12.0 for {repo_dir_root}")
+
+        _logger.info(
+            f"Fork {url} on dir {repo_dir_root} for organization {organization_name}")
 
         try:
             upstream_remote = cloned_repo.remote(upstream_name)
