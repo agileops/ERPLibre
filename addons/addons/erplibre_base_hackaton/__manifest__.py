@@ -1,33 +1,29 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 {
-    'name': 'MathBenTech base enterprise',
+    'name': 'ERPLibre base hackaton',
     'version': '0.1',
-    'author': "MathBenTech",
-    'website': 'https://mathben.tech',
+    'author': "ERPLibre",
+    'website': 'https://erplibre.ca',
     'license': 'AGPL-3',
     'category': 'Human Resources',
-    'summary': 'INSTALL my base enterprise',
+    'summary': 'INSTALL my base hackaton',
     'description': """
-MathBenTechBase
+ERPLibreBase
 ===============
 
 """,
     'depends': [
-        # Custom MathBenTech
-        'mathbentech_base',
-
-        'hr_expense_associate_with_customer',
-        'hr_expense_tip',
-
-        'sale_order_line_limit',
+        # Custom ERPLibre
+        'erplibre_base',
 
         'res_partner_fix_group_by_company',
-        'configure_quebec_tax',
         'crm_filter_all',
-        'sale_degroup_tax',
 
-        'helpdesk_mailing_list',
+        'helpdesk_service_call',
+        'website_helpdesk',
+        'website_portal_contact',
+        'website_portal_address',
 
         # Odoo base
         'account',
@@ -45,18 +41,8 @@ MathBenTechBase
 
         'project',
 
-        'purchase',
-
-        'hr',
-        'hr_expense',
-        'hr_org_chart',
-
         'website',
         'website_crm',
-
-        'sale',
-        'sale_management',
-        'stock',
 
         # OCA
         'website_form_builder',
@@ -78,6 +64,9 @@ MathBenTechBase
         'scrummer_workflow_security',
         'scrummer_workflow_transition_by_project',
         'scrummer_workflow_transitions_by_task_type',
+
+        # OCA helpdesk
+        'helpdesk_mgmt',
     ],
     'data': [],
     'installable': True,

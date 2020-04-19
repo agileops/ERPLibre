@@ -1,21 +1,21 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 {
-    'name': 'MathBenTech base entreprise MRP',
+    'name': 'ERPLibre base entreprise MRP',
     'version': '0.1',
-    'author': "MathBenTech",
-    'website': 'https://mathben.tech',
+    'author': "ERPLibre",
+    'website': 'https://erplibre.ca',
     'license': 'AGPL-3',
     'category': 'Human Resources',
     'summary': 'INSTALL my base entreprise MRP',
     'description': """
-MathBenTechBase
+ERPLibreBase
 ===============
 
 """,
     'depends': [
-        # Custom MathBenTech
-        'mathbentech_base',
+        # Custom ERPLibre
+        'erplibre_base',
 
         'res_partner_fix_group_by_company',
         'crm_filter_all',

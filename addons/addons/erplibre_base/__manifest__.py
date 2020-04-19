@@ -1,20 +1,20 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 {
-    'name': 'MathBenTech base',
+    'name': 'ERPLibre base',
     'version': '0.1',
-    'author': "MathBenTech",
-    'website': 'https://mathben.tech',
+    'author': "ERPLibre",
+    'website': 'https://erplibre.ca',
     'license': 'AGPL-3',
     'category': 'Human Resources',
     'summary': 'INSTALL my base',
     'description': """
-MathBenTechBase
+ERPLibreBase
 ===============
 
 """,
     'depends': [
-        # Custom MathBenTech
+        # Custom ERPLibre
         # OCA
         'web_responsive',
 
