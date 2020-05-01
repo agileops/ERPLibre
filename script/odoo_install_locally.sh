@@ -105,6 +105,7 @@ if [[ $MINIMAL_ADDONS = "False" ]]; then
     printf "${OE_HOME}/addons/OCA_e-commerce," >> ${OE_CONFIG_FILE}
     printf "${OE_HOME}/addons/OCA_edi," >> ${OE_CONFIG_FILE}
     printf "${OE_HOME}/addons/OCA_event," >> ${OE_CONFIG_FILE}
+    printf "${OE_HOME}/addons/OCA_geospatial," >> ${OE_CONFIG_FILE}
     printf "${OE_HOME}/addons/OCA_helpdesk," >> ${OE_CONFIG_FILE}
     printf "${OE_HOME}/addons/OCA_hr," >> ${OE_CONFIG_FILE}
     printf "${OE_HOME}/addons/OCA_knowledge," >> ${OE_CONFIG_FILE}

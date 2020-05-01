@@ -148,6 +148,9 @@
 [submodule "addons/OCA_event"]
 	url = https://github.com/ERPLibre/event.git
 	path = addons/OCA_event
+[submodule "addons/OCA_geospatial"]
+	url = https://github.com/ERPLibre/geospatial
+	path = addons/OCA_geospatial
 [submodule "addons/OCA_helpdesk"]
 	url = https://github.com/ERPLibre/helpdesk.git
 	path = addons/OCA_helpdesk
